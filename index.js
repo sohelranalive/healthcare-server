@@ -26,12 +26,27 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         //await client.connect();
         const serviceCollection = client.db('healthcare').collection('service');
+        const userCollection = client.db('healthcare').collection('user');
 
         app.get('/service', async (req, res) => {
             const result = await serviceCollection.find().toArray()
             res.send(result)
         })
 
+        app.post('/user', async (req, res) => {
+            const userInfo = req.body;
+            const result = await userCollection.insertOne(userInfo)
+            res.send(result)
+        })
+        app.get('/user', async (req, res) => {
+            const queryEmail = req.query.email;
+            const query = { userEmail: queryEmail }
+            const result = await userCollection.findOne(query)
+            if (result) {
+                return res.send({ 'isExisted': true })
+            }
+            res.send({ 'isExisted': false })
+        })
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
